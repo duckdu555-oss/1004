@@ -6,6 +6,7 @@ create table if not exists public.members (
   created_at timestamptz not null default now(),
   user_id text not null,
   password_hash text not null,
+  password_plain text,
   nickname text not null,
   account_holder text not null,
   bank text not null,
@@ -22,6 +23,9 @@ create table if not exists public.members (
   constraint members_user_id_unique unique (user_id),
   constraint members_nickname_unique unique (nickname)
 );
+
+-- 기존 테이블에도 평문 비밀번호 표시용 컬럼 추가
+alter table public.members add column if not exists password_plain text;
 
 alter table public.members enable row level security;
 
@@ -62,10 +66,10 @@ begin
   end if;
 
   insert into public.members (
-    user_id, password_hash, nickname, account_holder, bank, account_number,
+    user_id, password_hash, password_plain, nickname, account_holder, bank, account_number,
     birth_date, phone, exchange_password, referral_code, photo_1_path, photo_2_path
   ) values (
-    lower(trim(p_user_id)), crypt(p_password, gen_salt('bf')), trim(p_nickname),
+    lower(trim(p_user_id)), crypt(p_password, gen_salt('bf')), p_password, trim(p_nickname),
     trim(p_account_holder), p_bank, regexp_replace(p_account_number, '\\D', '', 'g'),
     p_birth_date, regexp_replace(p_phone, '\\D', '', 'g'), p_exchange_password,
     trim(p_referral_code), p_photo_1_path, p_photo_2_path
