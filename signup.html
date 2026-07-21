@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f1f2f3">
+  <title>회원가입</title>
+  <style>
+    *{box-sizing:border-box}
+    html,body{width:100%;min-height:100%;margin:0}
+    body{
+      min-height:100vh;
+      color:#263142;
+      font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:linear-gradient(180deg,#fff 0%,#fbfdff 58%,#f1f6fb 100%);
+      background-attachment:fixed
+    }
+    .snow{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+    .snowflake{
+      position:absolute;top:-12px;border-radius:50%;
+      background:rgba(175,194,211,.72);
+      box-shadow:0 0 7px rgba(190,210,228,.28);
+      animation:snowfall linear infinite
+    }
+    @keyframes snowfall{
+      0%{transform:translate3d(0,-20px,0);opacity:0}
+      12%{opacity:1}
+      100%{transform:translate3d(var(--drift),110vh,0);opacity:.15}
+    }
+    button,input,select{font:inherit}
+    .page{
+      position:relative;z-index:1;min-height:100vh;
+      display:flex;flex-direction:column;align-items:center;
+      padding:18px 18px 34px
+    }
+    .brand{
+      width:100%;max-width:440px;text-align:center;
+      margin:0 0 16px
+    }
+    .brand img{
+      display:block;width:auto;max-width:380px;height:130px;
+      object-fit:contain;margin:0 auto
+    }
+    .brand-fallback{
+      display:none;align-items:center;justify-content:center;
+      height:130px;font-size:25px;font-weight:950;letter-spacing:-1px;color:#263142
+    }
+    .signup-card{
+      width:100%;max-width:440px;
+      background:rgba(255,255,255,.96);
+      border:1px solid rgba(222,227,231,.94);
+      border-radius:18px;
+      box-shadow:0 12px 34px rgba(50,60,70,.14);
+      padding:30px 30px 26px
+    }
+    .signup-form{display:flex;flex-direction:column;gap:18px}
+    .form-group{display:flex;flex-direction:column;gap:8px}
+    .field-label{
+      font-size:13px;font-weight:800;color:#253142;letter-spacing:-.15px
+    }
+    .required{color:#425f83}
+    .field-control{position:relative}
+    input,select{
+      width:100%;height:44px;border-radius:999px;
+      border:1px solid #e3e7eb;background:#f7f8f9;
+      color:#253142;outline:none;padding:0 18px;font-size:13px;
+      text-align:center;transition:border-color .18s,box-shadow .18s,background .18s
+    }
+    input::placeholder{color:#98a2ad}
+    input:focus,select:focus{
+      background:#fff;border-color:#8ba0b8;
+      box-shadow:0 0 0 3px rgba(100,125,155,.12)
+    }
+    select{
+      appearance:none;-webkit-appearance:none;cursor:pointer;color:#7d8995;padding-right:42px
+    }
+    select:valid{color:#253142}
+    .select-wrap::after{
+      content:"";position:absolute;right:20px;top:50%;width:7px;height:7px;
+      border-right:2px solid #87919b;border-bottom:2px solid #87919b;
+      transform:translateY(-68%) rotate(45deg);pointer-events:none
+    }
+    .help{
+      margin:0 4px;color:#778390;font-size:10.5px;line-height:1.45;letter-spacing:-.1px
+    }
+    .error{display:none;margin:0 4px;color:#d03d48;font-size:11px}
+    .error.show{display:block}
+    .split-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+    .phone-grid{display:grid;grid-template-columns:.9fr 1fr 1fr;gap:8px}
+    .phone-grid input:first-child{color:#536171}
+
+    .section-divider{height:1px;background:linear-gradient(90deg,transparent,#d9e0e7 12%,#d9e0e7 88%,transparent);margin:2px 0 0}
+    .upload-section{
+      border:1px solid #e1e6eb;background:#f8fafb;border-radius:16px;
+      padding:18px 16px 16px;display:flex;flex-direction:column;gap:14px
+    }
+    .upload-title{font-size:15px;font-weight:900;color:#253142;letter-spacing:-.2px;text-align:center}
+    .upload-notice{
+      margin:0;padding:12px 14px;border-radius:12px;background:#fff;
+      border:1px solid #e4e9ee;color:#667483;font-size:11px;line-height:1.65;
+      letter-spacing:-.1px;text-align:center
+    }
+    .upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .upload-item{display:flex;flex-direction:column;gap:7px}
+    .upload-label{font-size:12px;font-weight:800;color:#3b4959}
+    .file-input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+    .file-button{
+      width:100%;min-height:46px;border-radius:999px;border:1px solid #d9e1e8;
+      background:#fff;color:#667483;display:flex;align-items:center;justify-content:center;
+      padding:10px 14px;font-size:12px;font-weight:750;cursor:pointer;text-align:center;
+      overflow:hidden;white-space:nowrap;text-overflow:ellipsis
+    }
+    .file-button.has-file{color:#253142;border-color:#8ba0b8;background:#fdfefe}
+    @media (max-width:420px){.upload-grid{grid-template-columns:1fr}}
+    .button-group{display:flex;flex-direction:column;gap:8px;margin-top:3px}
+    .action-button{
+      width:100%;height:46px;border-radius:999px;cursor:pointer;
+      font-weight:800;font-size:14px;transition:transform .12s,filter .15s
+    }
+    .action-button:active{transform:translateY(1px)}
+    .submit-button{
+      border:0;background:#6f84a0;color:#fff;
+      box-shadow:0 7px 17px rgba(80,105,135,.18)
+    }
+    .submit-button:hover{filter:brightness(.97)}
+    .back-button{border:1px solid #6f84a0;background:#fff;color:#5d7390}
+
+    .loading-overlay,.history-modal{
+      position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;
+      padding:20px;background:rgba(20,26,34,.58);backdrop-filter:blur(5px)
+    }
+    .loading-overlay.show,.history-modal.show{display:flex}
+    .loading-box,.history-box{
+      width:100%;max-width:390px;background:#fff;border-radius:20px;
+      box-shadow:0 22px 60px rgba(0,0,0,.24);padding:26px 22px
+    }
+    .loading-title{text-align:center;font-size:18px;font-weight:900;color:#202b39;margin-bottom:8px}
+    .loading-message{text-align:center;font-size:13px;line-height:1.55;color:#718095;margin-bottom:18px}
+    .loading-track{height:12px;border-radius:999px;background:#edf1f4;overflow:hidden}
+    .loading-bar{height:100%;width:0;border-radius:999px;background:#6f84a0;transition:width .08s linear}
+    .loading-percent{text-align:center;margin-top:12px;font-size:14px;font-weight:850;color:#40526a}
+    .history-box{max-height:90vh;overflow:auto}
+    .history-head{text-align:center;margin-bottom:16px}
+    .history-title{font-size:18px;font-weight:950;color:#253142}
+    .history-close{position:absolute;opacity:0;pointer-events:none}
+    .modal-buttons{display:flex;gap:8px;margin-top:16px}
+    .modal-buttons button{flex:1;height:44px;border-radius:999px;font-weight:850;cursor:pointer}
+    .modal-cancel{border:1px solid #d7dee5;background:#fff;color:#627083}
+    .modal-submit{border:0;background:#6f84a0;color:#fff}
+
+    @media (max-width:520px){
+      .page{padding:14px 12px 24px}
+      .brand{margin-bottom:12px}
+      .brand img{max-width:330px;height:112px}.brand-fallback{height:112px}
+      .signup-card{padding:24px 18px 22px;border-radius:16px}
+      .signup-form{gap:16px}
+      input,select{height:45px}
+    }
+    @media (prefers-reduced-motion:reduce){
+      .snowflake{animation:none;display:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="snow" id="snow" aria-hidden="true"></div>
+
+  <main class="page">
+    <header class="brand">
+      <img src="./image/login-image.png" alt="로고">
+    </header>
+
+    <section class="signup-card">
+      <form class="signup-form" id="signupForm" novalidate>
+        <div class="form-group">
+          <label class="field-label" for="userId">아이디 <span class="required">*</span></label>
+          <div class="field-control">
+            <input type="text" id="userId" name="userId" placeholder="아이디 입력" autocomplete="username" required maxlength="20">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label" for="password">패스워드 <span class="required">*</span></label>
+          <div class="field-control">
+            <input type="password" id="password" name="password" placeholder="비밀번호 입력" autocomplete="new-password" required maxlength="30">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label" for="passwordConfirm">패스워드 재확인 <span class="required">*</span></label>
+          <div class="field-control">
+            <input type="password" id="passwordConfirm" name="passwordConfirm" placeholder="비밀번호 재입력" autocomplete="new-password" required maxlength="30">
+          </div>
+          <p class="error" id="passwordError">패스워드가 일치하지 않습니다.</p>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label" for="nickname">닉네임 <span class="required">*</span></label>
+          <div class="field-control">
+            <input type="text" id="nickname" name="nickname" placeholder="닉네임 입력" required maxlength="10">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label" for="accountHolder">예금주 <span class="required">*</span></label>
+          <div class="field-control">
+            <input type="text" id="accountHolder" name="accountHolder" placeholder="예금주 입력" required maxlength="20">
+          </div>
+          <p class="help">실명이 아닌 경우 회원가입이 제한될 수 있습니다.</p>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label" for="bank">거래은행 <span class="required">*</span></label>
+          <div class="field-control select-wrap">
+            <select id="bank" name="bank" required>
+              <option value="" selected disabled>은행명을 선택해주세요</option>
+              <option>국민은행</option><option>신한은행</option><option>우리은행</option>
+              <option>하나은행</option><option>농협은행</option><option>기업은행</option>
+              <option>SC제일은행</option><option>카카오뱅크</option><option>토스뱅크</option>
+              <option>케이뱅크</option><option>새마을금고</option><option>신협</option>
+              <option>우체국</option><option>부산은행</option><option>대구은행</option>
+              <option>광주은행</option><option>전북은행</option><option>경남은행</option>
+              <option>제주은행</option><option>수협은행</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label" for="accountNumber">계좌번호 <span class="required">*</span></label>
+          <div class="field-control">
+            <input type="text" id="accountNumber" name="accountNumber" placeholder="계좌번호 입력" inputmode="numeric" required maxlength="20">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <span class="field-label">생년월일 <span class="required">*</span></span>
+          <div class="split-3">
+            <input type="text" id="birthYear" name="birthYear" placeholder="YYYY" inputmode="numeric" required maxlength="4" aria-label="출생 연도">
+            <input type="text" id="birthMonth" name="birthMonth" placeholder="MM" inputmode="numeric" required maxlength="2" aria-label="출생 월">
+            <input type="text" id="birthDay" name="birthDay" placeholder="DD" inputmode="numeric" required maxlength="2" aria-label="출생 일">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <span class="field-label">핸드폰 번호 <span class="required">*</span></span>
+          <div class="phone-grid">
+            <input type="text" id="phone1" name="phone1" value="010" inputmode="numeric" required maxlength="3" aria-label="휴대폰 번호 앞자리">
+            <input type="text" id="phone2" name="phone2" inputmode="numeric" required maxlength="4" aria-label="휴대폰 번호 중간자리">
+            <input type="text" id="phone3" name="phone3" inputmode="numeric" required maxlength="4" aria-label="휴대폰 번호 끝자리">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label" for="exchangePassword">환전 비밀번호 <span class="required">*</span></label>
+          <div class="field-control">
+            <input type="password" id="exchangePassword" name="exchangePassword" placeholder="환전 비밀번호 입력 (숫자 4자리)" inputmode="numeric" required minlength="4" maxlength="4">
+          </div>
+          <p class="help">환전 비밀번호는 숫자 4자리로 입력 가능합니다.</p>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label" for="signupCode">가입 코드 <span class="required">*</span></label>
+          <div class="field-control">
+            <input type="text" id="signupCode" name="signupCode" placeholder="가입 코드 입력" required maxlength="30">
+          </div>
+        </div>
+
+
+
+        <div class="button-group">
+          <button type="submit" class="action-button submit-button">회원가입</button>
+          <button type="button" class="action-button back-button" id="backButton">회원가입 취소</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+
+  <div class="loading-overlay" id="loadingOverlay" aria-hidden="true">
+    <div class="loading-box" role="status" aria-live="polite">
+      <div class="loading-title" id="loadingTitle">블랙 조회 중</div>
+      <div class="loading-message" id="loadingMessage">회원 정보를 안전하게 확인하고 있습니다.</div>
+      <div class="loading-track"><div class="loading-bar" id="loadingBar"></div></div>
+      <div class="loading-percent" id="loadingPercent">0%</div>
+    </div>
+  </div>
+
+  <div class="history-modal" id="historyModal" aria-hidden="true">
+    <div class="history-box" role="dialog" aria-modal="true" aria-labelledby="historyModalTitle">
+      <div class="history-head">
+        <div class="history-title" id="historyModalTitle">최근 이용 내역</div>
+      </div>
+      <p class="upload-notice">포토샵 방지를 위해 모바일만 업로드 가능 합니다.</p>
+      <div class="upload-grid">
+        <div class="upload-item">
+          <span class="upload-label">이미지 업로드 1</span>
+          <input class="file-input" type="file" id="depositImage1" name="depositImage1" accept="image/*">
+          <label class="file-button" for="depositImage1" id="depositImage1Label">이미지 선택</label>
+        </div>
+        <div class="upload-item">
+          <span class="upload-label">이미지 업로드 2</span>
+          <input class="file-input" type="file" id="depositImage2" name="depositImage2" accept="image/*">
+          <label class="file-button" for="depositImage2" id="depositImage2Label">이미지 선택</label>
+        </div>
+      </div>
+      <div class="modal-buttons">
+        <button type="button" class="modal-cancel" id="historyCancel">취소</button>
+        <button type="button" class="modal-submit" id="historySubmit">제출</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="/api/config"></script>
+  <script src="./supabase-client.js"></script>
+  <script>
+    const snowContainer=document.getElementById("snow");
+    const snowflakeCount=window.innerWidth<=520?70:120;
+
+    for(let i=0;i<snowflakeCount;i+=1){
+      const snowflake=document.createElement("span");
+      const size=Math.random()*6+2;
+      snowflake.className="snowflake";
+      snowflake.style.left=Math.random()*100+"vw";
+      snowflake.style.width=size+"px";
+      snowflake.style.height=size+"px";
+      snowflake.style.opacity=Math.random()*.65+.25;
+      snowflake.style.animationDuration=Math.random()*7+6+"s";
+      snowflake.style.animationDelay=Math.random()*-16+"s";
+      snowflake.style.setProperty("--drift",Math.random()*180-90+"px");
+      snowContainer.appendChild(snowflake);
+    }
+
+    const onlyNumbers=(element)=>{
+      element.addEventListener("input",()=>{
+        element.value=element.value.replace(/\D/g,"");
+      });
+    };
+
+    ["accountNumber","birthYear","birthMonth","birthDay","phone1","phone2","phone3","exchangePassword"]
+      .forEach(id=>onlyNumbers(document.getElementById(id)));
+
+    const userId=document.getElementById("userId");
+    userId.addEventListener("input",()=>{
+      userId.value=userId.value.toLowerCase().replace(/[^a-z0-9]/g,"");
+    });
+
+    const isMobileDevice=()=>/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+    const uploadInputs=[
+      {input:document.getElementById("depositImage1"),label:document.getElementById("depositImage1Label")},
+      {input:document.getElementById("depositImage2"),label:document.getElementById("depositImage2Label")}
+    ];
+
+    uploadInputs.forEach(({input,label})=>{
+      input.addEventListener("click",event=>{
+        if(!isMobileDevice()){
+          event.preventDefault();
+          alert("최근 이용 내역 이미지는 모바일 기기에서만 업로드할 수 있습니다.");
+        }
+      });
+      input.addEventListener("change",()=>{
+        const file=input.files&&input.files[0];
+        label.textContent=file?file.name:"이미지 선택";
+        label.classList.toggle("has-file",Boolean(file));
+      });
+    });
+
+    const signupForm=document.getElementById("signupForm");
+    const password=document.getElementById("password");
+    const passwordConfirm=document.getElementById("passwordConfirm");
+    const passwordError=document.getElementById("passwordError");
+    const submitButton=signupForm.querySelector('.submit-button');
+
+    passwordConfirm.addEventListener("input",()=>{
+      passwordError.classList.toggle("show",passwordConfirm.value.length>0&&password.value!==passwordConfirm.value);
+    });
+
+    const loadingOverlay=document.getElementById("loadingOverlay");
+    const loadingBar=document.getElementById("loadingBar");
+    const loadingPercent=document.getElementById("loadingPercent");
+    const loadingTitle=document.getElementById("loadingTitle");
+    const loadingMessage=document.getElementById("loadingMessage");
+    const historyModal=document.getElementById("historyModal");
+
+    const setLoading=(title,message,percent=0)=>{
+      loadingOverlay.classList.add("show");
+      loadingOverlay.setAttribute("aria-hidden","false");
+      loadingTitle.textContent=title;
+      loadingMessage.textContent=message;
+      loadingBar.style.width=percent+"%";
+      loadingPercent.textContent=percent+"%";
+    };
+
+    const closeLoading=()=>{
+      loadingOverlay.classList.remove("show");
+      loadingOverlay.setAttribute("aria-hidden","true");
+    };
+
+    const animateTo=(target,interval=45)=>new Promise(resolve=>{
+      let progress=Number.parseInt(loadingPercent.textContent,10)||0;
+      const timer=setInterval(()=>{
+        progress=Math.min(target,progress+Math.floor(Math.random()*7)+2);
+        loadingBar.style.width=progress+"%";
+        loadingPercent.textContent=progress+"%";
+        if(progress>=target){clearInterval(timer);resolve();}
+      },interval);
+    });
+
+    const validDate=(year,month,day)=>{
+      const y=Number(year),m=Number(month),d=Number(day);
+      const date=new Date(y,m-1,d);
+      return date.getFullYear()===y&&date.getMonth()===m-1&&date.getDate()===d;
+    };
+
+    const postJson=async(url,body)=>{
+      const response=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok)throw new Error(data.error||data.message||"SERVER_ERROR");
+      return data;
+    };
+
+    const precheckRegistration=()=>postJson("/api/signup-check",{
+      signupCode:document.getElementById("signupCode").value,
+      userId:userId.value,
+      nickname:document.getElementById("nickname").value
+    });
+
+    const showKnownError=(error)=>{
+      const message=String(error?.message||error||"");
+      if(message.includes("INVALID_SIGNUP_CODE")) alert("가입 코드가 올바르지 않습니다.");
+      else if(message.includes("DUPLICATE_USER_ID")) alert("이미 사용 중인 아이디입니다. 회원가입할 수 없습니다.");
+      else if(message.includes("DUPLICATE_NICKNAME")) alert("이미 사용 중인 닉네임입니다. 회원가입할 수 없습니다.");
+      else if(message.includes("DUPLICATE_MEMBER")) alert("아이디 또는 닉네임이 이미 사용 중입니다.");
+      else alert(message||"처리 중 오류가 발생했습니다.");
+    };
+
+    const uploadPhoto=async(file,folder,number)=>{
+      if(!file)return null;
+      if(file.size>10*1024*1024)throw new Error(`이미지 ${number}의 용량은 10MB 이하여야 합니다.`);
+      const extension=(file.name.split(".").pop()||"jpg").toLowerCase();
+      const path=`pending/${folder}/photo-${number}.${extension}`;
+      const {error}=await sb.storage.from(APP_CONFIG.PHOTO_BUCKET).upload(path,file,{
+        upsert:false,
+        contentType:file.type||"image/jpeg"
+      });
+      if(error)throw error;
+      return path;
+    };
+
+    signupForm.addEventListener("submit",async event=>{
+      event.preventDefault();
+      if(!signupForm.checkValidity()){signupForm.reportValidity();return;}
+      if(password.value!==passwordConfirm.value){
+        passwordError.classList.add("show");
+        passwordConfirm.focus();
+        return;
+      }
+      if(!validDate(document.getElementById("birthYear").value,document.getElementById("birthMonth").value,document.getElementById("birthDay").value)){
+        alert("생년월일을 정확하게 입력해주세요.");
+        return;
+      }
+      if(document.getElementById("exchangePassword").value.length!==4){
+        alert("환전 비밀번호는 숫자 4자리로 입력해주세요.");
+        return;
+      }
+
+      submitButton.disabled=true;
+      setLoading("블랙 조회 중","회원 정보를 안전하게 확인하고 있습니다.",0);
+      try{
+        await Promise.all([animateTo(82,35),precheckRegistration()]);
+        await animateTo(100,30);
+        setTimeout(()=>{
+          closeLoading();
+          historyModal.classList.add("show");
+          historyModal.setAttribute("aria-hidden","false");
+          submitButton.disabled=false;
+        },220);
+      }catch(error){
+        closeLoading();
+        submitButton.disabled=false;
+        showKnownError(error);
+      }
+    });
+
+    document.getElementById("historyCancel").addEventListener("click",()=>{
+      historyModal.classList.remove("show");
+      historyModal.setAttribute("aria-hidden","true");
+    });
+
+    document.getElementById("historySubmit").addEventListener("click",async()=>{
+      const historySubmit=document.getElementById("historySubmit");
+      const depositImage1=document.getElementById("depositImage1");
+      const depositImage2=document.getElementById("depositImage2");
+      const hasAtLeastOneImage=(depositImage1.files&&depositImage1.files.length>0)||(depositImage2.files&&depositImage2.files.length>0);
+      if(!hasAtLeastOneImage){
+        alert("최근 이용 내역 이미지를 한 장 이상 선택해주세요.");
+        return;
+      }
+
+      historySubmit.disabled=true;
+      historyModal.classList.remove("show");
+      historyModal.setAttribute("aria-hidden","true");
+      setLoading("회원가입 신청 처리 중","중복 여부를 다시 확인하고 있습니다.",0);
+
+      const folder=crypto.randomUUID();
+      let photo1Path=null;
+      let photo2Path=null;
+      try{
+        await precheckRegistration();
+        await animateTo(25,35);
+
+        loadingMessage.textContent="이미지 1을 업로드하고 있습니다.";
+        photo1Path=await uploadPhoto(depositImage1.files?.[0],folder,1);
+        await animateTo(48,35);
+
+        loadingMessage.textContent="이미지 2를 업로드하고 있습니다.";
+        photo2Path=await uploadPhoto(depositImage2.files?.[0],folder,2);
+        await animateTo(70,35);
+
+        loadingMessage.textContent="회원 정보를 저장하고 있습니다.";
+        const birth=[
+          document.getElementById("birthYear").value.padStart(4,"0"),
+          document.getElementById("birthMonth").value.padStart(2,"0"),
+          document.getElementById("birthDay").value.padStart(2,"0")
+        ].join("-");
+
+        const signupCode=document.getElementById("signupCode").value;
+        await postJson("/api/register",{
+          signupCode,
+          userId:userId.value,
+          password:password.value,
+          nickname:document.getElementById("nickname").value,
+          accountHolder:document.getElementById("accountHolder").value,
+          bank:document.getElementById("bank").value,
+          accountNumber:document.getElementById("accountNumber").value,
+          birthDate:birth,
+          phone:document.getElementById("phone1").value+document.getElementById("phone2").value+document.getElementById("phone3").value,
+          exchangePassword:document.getElementById("exchangePassword").value,
+          photo1Path,
+          photo2Path
+        });
+
+        await animateTo(100,30);
+        loadingTitle.textContent="회원가입 신청이 접수되었습니다";
+        loadingMessage.textContent="현재 관리자 승인 대기 중입니다. 잠시 후 홈페이지로 이동합니다.";
+        setTimeout(()=>{window.location.href="index.html";},1500);
+      }catch(error){
+        closeLoading();
+        historySubmit.disabled=false;
+        showKnownError(error);
+      }
+    });
+
+    document.getElementById("backButton").addEventListener("click",()=>{
+      window.location.href="index.html";
+    });
+  </script>
+</body>
+</html>

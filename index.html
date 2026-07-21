@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>로그인</title>
+  <style>
+    *{box-sizing:border-box}html,body{width:100%;min-height:100%;margin:0}body{min-height:100vh;background:linear-gradient(180deg,#fff,#fbfdff 58%,#f1f6fb);font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#111}.page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px}.login-wrap{width:100%;max-width:460px}.image-area{margin-bottom:30px;overflow:hidden;border-radius:18px;background:rgba(255,255,255,.72);box-shadow:0 10px 30px rgba(130,150,170,.08)}.image-area img{display:block;width:100%;height:auto}.login-form{display:flex;flex-direction:column;gap:12px}.login-form input,.login-form button{width:100%;height:54px;border-radius:999px;font:inherit}.login-form input{padding:0 18px;border:1px solid #d8e0e7;background:#fff;outline:none}.login-form input:focus{border-color:#8ca7bd;box-shadow:0 0 0 3px rgba(140,167,189,.12)}button{cursor:pointer;font-weight:800}.login-button{border:0;background:#111;color:#fff}.signup-button{border:1px solid #dfe7ed;background:#eef3f7;color:#111}.message{display:none;margin:4px 8px 0;font-size:13px;text-align:center;line-height:1.5}.message.show{display:block}.message.error{color:#c93340}.message.ok{color:#25734a}.loading{display:none;text-align:center;padding:10px;font-size:13px}.loading.show{display:block}@media(max-width:520px){.page{padding:28px 18px}}
+  </style>
+</head>
+<body>
+<main class="page"><section class="login-wrap">
+  <div class="image-area"><img src="./image/login-image.png" alt="상단 이미지"></div>
+  <form class="login-form" id="loginForm">
+    <input type="text" id="userId" placeholder="아이디" autocomplete="username" required>
+    <input type="password" id="password" placeholder="비밀번호" autocomplete="current-password" required>
+    <button type="submit" class="login-button">로그인</button>
+    <button type="button" class="signup-button" onclick="location.href='signup.html'">회원가입</button>
+    <div class="loading" id="loading">로그인 확인 중...</div>
+    <p class="message" id="message"></p>
+  </form>
+</section></main>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="/api/config"></script><script src="./supabase-client.js"></script>
+<script>
+const form=document.getElementById('loginForm'),msg=document.getElementById('message'),loading=document.getElementById('loading');
+const show=(text,type='error')=>{msg.textContent=text;msg.className=`message show ${type}`};
+form.addEventListener('submit',async e=>{
+  e.preventDefault(); msg.className='message'; loading.classList.add('show');
+  const userId=document.getElementById('userId').value.trim().toLowerCase();
+  const password=document.getElementById('password').value;
+  try{
+    const {data,error}=await sb.rpc('member_login',{p_user_id:userId,p_password:password});
+    if(error) throw error;
+    localStorage.setItem('memberSession',JSON.stringify({...data,loggedInAt:new Date().toISOString()}));
+    show(`${data.nickname}님, 로그인되었습니다.`,'ok');
+    // 실제 메인 페이지 주소로 변경
+    setTimeout(()=>location.href='main.html',500);
+  }catch(err){
+    const m=String(err.message||err);
+    if(m.includes('PENDING_APPROVAL')) show('가입 승인 대기 중입니다.');
+    else if(m.includes('REJECTED_MEMBER')) show('회원가입이 거절된 계정입니다.');
+    else show('아이디 또는 비밀번호가 올바르지 않습니다.');
+  }finally{loading.classList.remove('show')}
+});
+</script>
+</body></html>
