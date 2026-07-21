@@ -302,7 +302,7 @@
       </div>
       <div class="modal-buttons">
         <button type="button" class="modal-cancel" id="historyCancel">취소</button>
-        <button type="button" class="modal-submit" id="historySubmit">확</button>
+        <button type="button" class="modal-submit" id="historySubmit">확인</button>
       </div>
     </div>
   </div>
@@ -506,11 +506,11 @@
         await precheckRegistration();
         await animateTo(25,35);
 
-        loadingMessage.textContent="업로드 중 1.";
+        loadingMessage.textContent="업로드 중 1";
         photo1Path=await uploadPhoto(depositImage1.files?.[0],folder,1);
         await animateTo(48,35);
 
-        loadingMessage.textContent="업로드 중 2 .";
+        loadingMessage.textContent="업로드 중 2";
         photo2Path=await uploadPhoto(depositImage2.files?.[0],folder,2);
         await animateTo(70,35);
 
