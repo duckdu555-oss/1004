@@ -69,7 +69,7 @@ begin
     user_id, password_hash, password_plain, nickname, account_holder, bank, account_number,
     birth_date, phone, exchange_password, referral_code, photo_1_path, photo_2_path
   ) values (
-    lower(trim(p_user_id)), crypt(p_password, gen_salt('bf')), p_password, trim(p_nickname),
+    lower(trim(p_user_id)), extensions.crypt(p_password, extensions.gen_salt('bf')), p_password, trim(p_nickname),
     trim(p_account_holder), p_bank, regexp_replace(p_account_number, '\\D', '', 'g'),
     p_birth_date, regexp_replace(p_phone, '\\D', '', 'g'), p_exchange_password,
     trim(p_referral_code), p_photo_1_path, p_photo_2_path
@@ -98,7 +98,7 @@ begin
   from public.members
   where user_id = lower(trim(p_user_id));
 
-  if v_member.id is null or v_member.password_hash <> crypt(p_password, v_member.password_hash) then
+  if v_member.id is null or v_member.password_hash <> extensions.crypt(p_password, v_member.password_hash) then
     raise exception 'INVALID_LOGIN';
   end if;
 
