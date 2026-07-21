@@ -2,18 +2,18 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
   <meta name="theme-color" content="#f1f2f3">
   <title>회원가입</title>
   <style>
-    *{box-sizing:border-box}
-    html,body{width:100%;min-height:100%;margin:0}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{width:100%;min-height:100%;margin:0;touch-action:manipulation}
     body{
       min-height:100vh;
       color:#263142;
       font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       background:linear-gradient(180deg,#fff 0%,#fbfdff 58%,#f1f6fb 100%);
-      background-attachment:fixed
+      background-attachment:fixed;overscroll-behavior:none
     }
     .snow{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
     .snowflake{
@@ -27,7 +27,7 @@
       12%{opacity:1}
       100%{transform:translate3d(var(--drift),110vh,0);opacity:.15}
     }
-    button,input,select{font:inherit}
+    button,input,select{font:inherit;touch-action:manipulation}
     .page{
       position:relative;z-index:1;min-height:100vh;
       display:flex;flex-direction:column;align-items:center;
@@ -63,7 +63,7 @@
     input,select{
       width:100%;height:44px;border-radius:999px;
       border:1px solid #e3e7eb;background:#f7f8f9;
-      color:#253142;outline:none;padding:0 18px;font-size:13px;
+      color:#253142;outline:none;padding:0 18px;font-size:16px;
       text-align:center;transition:border-color .18s,box-shadow .18s,background .18s
     }
     input::placeholder{color:#98a2ad}
@@ -462,7 +462,7 @@
       }
 
       submitButton.disabled=true;
-      setLoading("블랙 조회 중",);
+      setLoading("블랙 조회 중","회원 정보를 확인 중입니다.",0);
       try{
         await Promise.all([animateTo(82,35),precheckRegistration()]);
         await animateTo(100,30);
