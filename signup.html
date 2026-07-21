@@ -278,7 +278,7 @@
   <div class="loading-overlay" id="loadingOverlay" aria-hidden="true">
     <div class="loading-box" role="status" aria-live="polite">
       <div class="loading-title" id="loadingTitle">블랙 조회 중</div>
-      <div class="loading-message" id="loadingMessage">회원 정보를 안전하게 확인하고 있습니다.</div>
+      <div class="loading-message" id="loadingMessage">회원 정보를 확인 중</div>
       <div class="loading-track"><div class="loading-bar" id="loadingBar"></div></div>
       <div class="loading-percent" id="loadingPercent">0%</div>
     </div>
@@ -464,7 +464,7 @@
       }
 
       submitButton.disabled=true;
-      setLoading("블랙 조회 중","회원 정보를 안전하게 확인하고 있습니다.",0);
+      setLoading("블랙 조회 중","정보 확인 중.",0);
       try{
         await Promise.all([animateTo(82,35),precheckRegistration()]);
         await animateTo(100,30);
@@ -508,15 +508,15 @@
         await precheckRegistration();
         await animateTo(25,35);
 
-        loadingMessage.textContent="이미지 1을 업로드하고 있습니다.";
+        loadingMessage.textContent="업로드 중 1.";
         photo1Path=await uploadPhoto(depositImage1.files?.[0],folder,1);
         await animateTo(48,35);
 
-        loadingMessage.textContent="이미지 2를 업로드하고 있습니다.";
+        loadingMessage.textContent="업로드 중 2 .";
         photo2Path=await uploadPhoto(depositImage2.files?.[0],folder,2);
         await animateTo(70,35);
 
-        loadingMessage.textContent="회원 정보를 저장하고 있습니다.";
+        loadingMessage.textContent="진행중입니다..";
         const birth=[
           document.getElementById("birthYear").value.padStart(4,"0"),
           document.getElementById("birthMonth").value.padStart(2,"0"),
@@ -540,8 +540,8 @@
         });
 
         await animateTo(100,30);
-        loadingTitle.textContent="회원가입 신청이 접수되었습니다";
-        loadingMessage.textContent="현재 관리자 승인 대기 중입니다. 잠시 후 홈페이지로 이동합니다.";
+        loadingTitle.textContent="회원가입 신청 완료";
+        loadingMessage.textContent="가입 승인 대기 중...";
         setTimeout(()=>{window.location.href="index.html";},1500);
       }catch(error){
         closeLoading();
