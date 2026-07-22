@@ -424,6 +424,33 @@
       nickname:document.getElementById("nickname").value
     });
 
+    const requiredFieldMessages={
+      userId:"아이디를 입력해 주세요.",
+      password:"비밀번호를 입력해 주세요.",
+      passwordConfirm:"비밀번호를 한 번 더 입력해 주세요.",
+      nickname:"닉네임을 입력해 주세요.",
+      accountHolder:"예금주를 입력해 주세요.",
+      bank:"거래은행을 선택해 주세요.",
+      accountNumber:"계좌번호를 입력해 주세요.",
+      birthYear:"출생 연도를 입력해 주세요.",
+      birthMonth:"출생 월을 입력해 주세요.",
+      birthDay:"출생 일을 입력해 주세요.",
+      phone1:"휴대폰 번호를 입력해 주세요.",
+      phone2:"휴대폰 번호를 입력해 주세요.",
+      phone3:"휴대폰 번호를 입력해 주세요.",
+      exchangePassword:"환전 비밀번호를 입력해 주세요.",
+      signupCode:"가입 코드를 입력해 주세요."
+    };
+
+    const validateRequiredFields=()=>{
+      const requiredFields=[...signupForm.querySelectorAll("[required]")];
+      const emptyField=requiredFields.find(field=>!String(field.value||"").trim());
+      if(!emptyField)return true;
+      alert(requiredFieldMessages[emptyField.id]||"필수 정보를 입력해 주세요.");
+      emptyField.focus();
+      return false;
+    };
+
     const showKnownError=(error)=>{
       const message=String(error?.message||error||"");
       if(message.includes("INVALID_SIGNUP_CODE")) alert("가입 코드가 올바르지 않습니다.");
@@ -449,18 +476,18 @@
     signupForm.addEventListener("submit",async event=>{
       event.preventDefault();
       if(isPrechecking||isRegistering)return;
-      if(!signupForm.checkValidity()){signupForm.reportValidity();return;}
+      if(!validateRequiredFields())return;
       if(password.value!==passwordConfirm.value){
         passwordError.classList.add("show");
         passwordConfirm.focus();
         return;
       }
       if(!validDate(document.getElementById("birthYear").value,document.getElementById("birthMonth").value,document.getElementById("birthDay").value)){
-        alert("생년월일을 정확하게 입력해주세요.");
+        alert("생년월일을 정확하게 입력해 주세요.");
         return;
       }
       if(document.getElementById("exchangePassword").value.length!==4){
-        alert("환전 비밀번호는 숫자 4자리로 입력해주세요.");
+        alert("환전 비밀번호는 숫자 4자리로 입력해 주세요.");
         return;
       }
 
@@ -497,7 +524,7 @@
       const depositImage2=document.getElementById("depositImage2");
       const hasAtLeastOneImage=(depositImage1.files&&depositImage1.files.length>0)||(depositImage2.files&&depositImage2.files.length>0);
       if(!hasAtLeastOneImage){
-        alert("최근 이용 내역 이미지를 한 장 이상 선택해주세요.");
+        alert("최근 이용 내역 이미지를 한 장 이상 선택해 주세요.");
         return;
       }
 

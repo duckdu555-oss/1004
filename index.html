@@ -9,9 +9,20 @@
     body{min-height:100vh;background:linear-gradient(180deg,#fff,#fbfdff 58%,#f1f6fb);font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#111;overscroll-behavior:none}
     button,input{font:inherit;touch-action:manipulation}
     .page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px}
-    .login-wrap{width:100%;max-width:460px}
-    .image-area{margin-bottom:30px;overflow:hidden;border-radius:18px;background:rgba(255,255,255,.72);box-shadow:0 10px 30px rgba(130,150,170,.08)}
+    .login-wrap{width:100%;max-width:980px}
+    .image-area{width:100%;max-width:460px;margin:0 auto 30px;overflow:hidden;border-radius:18px;background:rgba(255,255,255,.72);box-shadow:0 10px 30px rgba(130,150,170,.08)}
     .image-area img{display:block;width:100%;height:auto}
+    .login-content{position:relative;width:100%;min-height:258px}
+    .banner-section{position:fixed;left:50%;top:50%;z-index:20;width:min(96vw,1840px);transform:translate(-50%,-50%)}
+    .banner-grid{display:grid;grid-template-columns:repeat(4,minmax(0,440px));justify-content:center;align-items:center;gap:18px;width:100%;margin:0 auto}
+    .banner-card{position:relative;overflow:hidden;border-radius:20px;background:rgba(255,255,255,.96);box-shadow:0 18px 54px rgba(55,70,88,.22);width:100%}
+    .banner-card img{display:block;width:100%;height:auto;max-height:68vh;object-fit:contain;cursor:pointer}
+    .banner-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:8px 10px;background:rgba(255,255,255,.98);border-top:1px solid #e8edf1}
+    .banner-hide-today{border:0;background:transparent;color:#526271;font-size:12px;font-weight:800;padding:5px 4px}
+    .banner-close{position:static;width:28px;height:28px;border:0;border-radius:50%;background:rgba(0,0,0,.68);color:#fff;font-size:17px;line-height:1;display:grid;place-items:center;padding:0}
+    .banner-card.is-hidden{display:none}
+    .banner-section.is-hidden{display:none}
+    .login-panel{width:100%;max-width:460px;margin:0 auto}
     .login-form{display:flex;flex-direction:column;gap:12px}
     .login-form input,.login-form button{width:100%;height:54px;border-radius:999px}
     .login-form input{padding:0 18px;border:1px solid #d8e0e7;background:#fff;outline:none;font-size:16px}
@@ -33,6 +44,12 @@
       .page{padding:48px 24px;align-items:center}
       .login-wrap{max-width:350px}
       .image-area{margin:0 auto 24px;border-radius:16px}
+      .login-content{min-height:232px}
+      .banner-section{width:100%;max-width:360px}
+      .banner-grid{display:flex;justify-content:flex-start;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:calc((100% - min(82vw,320px))/2);padding-inline:calc((100% - min(82vw,320px))/2);scrollbar-width:none;overscroll-behavior-x:contain}
+      .banner-grid::-webkit-scrollbar{display:none}
+      .banner-card{flex:0 0 min(82vw,320px);scroll-snap-align:center;border-radius:18px}
+      .banner-card img{width:100%;height:auto;max-height:62vh;object-fit:contain}
       .login-form{gap:10px}
       .login-form input,.login-form button{height:48px}
     }
@@ -43,7 +60,17 @@
 <body>
 <main class="page"><section class="login-wrap">
   <div class="image-area"><img src="./image/login-image.png" alt="상단 이미지"></div>
-  <form class="login-form" id="loginForm">
+  <div class="login-content">
+  <section class="banner-section" id="bannerSection" aria-label="안내 배너">
+    <div class="banner-grid" id="bannerGrid">
+      <article class="banner-card" data-banner-id="1"><img src="./image/banner1.png" alt="배너 1"><div class="banner-actions"><button type="button" class="banner-hide-today">오늘 하루 보지 않기</button><button type="button" class="banner-close" aria-label="배너 1 닫기">×</button></div></article>
+      <article class="banner-card" data-banner-id="2"><img src="./image/banner2.png" alt="배너 2"><div class="banner-actions"><button type="button" class="banner-hide-today">오늘 하루 보지 않기</button><button type="button" class="banner-close" aria-label="배너 2 닫기">×</button></div></article>
+      <article class="banner-card" data-banner-id="3"><img src="./image/banner3.png" alt="배너 3"><div class="banner-actions"><button type="button" class="banner-hide-today">오늘 하루 보지 않기</button><button type="button" class="banner-close" aria-label="배너 3 닫기">×</button></div></article>
+      <article class="banner-card" data-banner-id="4"><img src="./image/banner4.png" alt="배너 4"><div class="banner-actions"><button type="button" class="banner-hide-today">오늘 하루 보지 않기</button><button type="button" class="banner-close" aria-label="배너 4 닫기">×</button></div></article>
+    </div>
+  </section>
+  <div class="login-panel">
+  <form class="login-form" id="loginForm" novalidate>
     <input type="text" id="userId" placeholder="아이디" autocomplete="username" required>
     <input type="password" id="password" placeholder="비밀번호" autocomplete="current-password" required>
     <button type="submit" class="login-button">로그인</button>
@@ -51,6 +78,8 @@
     <div class="loading" id="loading">로그인 확인 중...</div>
     <p class="message" id="message"></p>
   </form>
+  </div>
+  </div>
 </section></main>
 <div class="progress-overlay" id="progressOverlay" aria-hidden="true">
   <div class="progress-box" role="status" aria-live="polite">
@@ -65,6 +94,41 @@
 const form=document.getElementById('loginForm'),msg=document.getElementById('message'),loading=document.getElementById('loading');
 const signupButton=document.getElementById('signupButton'),progressOverlay=document.getElementById('progressOverlay'),progressBar=document.getElementById('progressBar'),progressPercent=document.getElementById('progressPercent');
 const show=(text,type='error')=>{msg.textContent=text;msg.className=`message show ${type}`};
+const bannerSection=document.getElementById('bannerSection');
+const bannerGrid=document.getElementById('bannerGrid');
+const bannerCards=[...bannerGrid.querySelectorAll('.banner-card')];
+const bannerStorageKey=id=>`hideBanner${id}Until`;
+const tomorrowMidnight=()=>{const d=new Date();d.setHours(24,0,0,0);return d.getTime()};
+const updateBannerSection=()=>{
+  const hasVisible=bannerCards.some(card=>!card.classList.contains('is-hidden'));
+  bannerSection.classList.toggle('is-hidden',!hasVisible);
+};
+const hideBannerCard=card=>{card.classList.add('is-hidden');updateBannerSection()};
+bannerCards.forEach(card=>{
+  const id=card.dataset.bannerId;
+  const hiddenUntil=Number(localStorage.getItem(bannerStorageKey(id))||0);
+  if(hiddenUntil>Date.now()) card.classList.add('is-hidden');
+  else localStorage.removeItem(bannerStorageKey(id));
+});
+updateBannerSection();
+let bannerTouchStartX=0,bannerTouchStartY=0;
+bannerGrid.addEventListener('touchstart',event=>{const t=event.touches[0];bannerTouchStartX=t.clientX;bannerTouchStartY=t.clientY},{passive:true});
+bannerGrid.addEventListener('click',event=>{
+  const card=event.target.closest('.banner-card');
+  if(!card)return;
+  if(event.target.closest('.banner-hide-today')){
+    localStorage.setItem(bannerStorageKey(card.dataset.bannerId),String(tomorrowMidnight()));
+    hideBannerCard(card);
+    return;
+  }
+  if(event.target.closest('.banner-close')||event.target.tagName==='IMG') hideBannerCard(card);
+});
+bannerGrid.addEventListener('touchend',event=>{
+  const t=event.changedTouches[0];
+  if(Math.abs(t.clientX-bannerTouchStartX)>12||Math.abs(t.clientY-bannerTouchStartY)>12)return;
+  const card=event.target.closest('.banner-card');
+  if(card&&event.target.tagName==='IMG')hideBannerCard(card);
+},{passive:true});
 signupButton.addEventListener('click',()=>{
   if(signupButton.disabled)return;
   signupButton.disabled=true;
@@ -83,9 +147,14 @@ signupButton.addEventListener('click',()=>{
 });
 
 form.addEventListener('submit',async e=>{
-  e.preventDefault(); msg.className='message'; loading.classList.add('show');
-  const userId=document.getElementById('userId').value.trim().toLowerCase();
-  const password=document.getElementById('password').value;
+  e.preventDefault(); msg.className='message';
+  const userIdInput=document.getElementById('userId');
+  const passwordInput=document.getElementById('password');
+  const userId=userIdInput.value.trim().toLowerCase();
+  const password=passwordInput.value;
+  if(!userId){show('아이디를 입력해 주세요.');userIdInput.focus();return;}
+  if(!password){show('비밀번호를 입력해 주세요.');passwordInput.focus();return;}
+  loading.classList.add('show');
   try{
     const {data,error}=await sb.rpc('member_login',{p_user_id:userId,p_password:password});
     if(error) throw error;
