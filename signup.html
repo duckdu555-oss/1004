@@ -341,9 +341,23 @@
       .forEach(id=>onlyNumbers(document.getElementById(id)));
 
     const onlyKorean=(element)=>{
-      element.addEventListener("input",()=>{
+      let isComposing=false;
+      const sanitize=()=>{
         element.value=element.value.replace(/[^가-힣]/g,"");
+      };
+
+      element.addEventListener("compositionstart",()=>{
+        isComposing=true;
       });
+      element.addEventListener("compositionend",()=>{
+        isComposing=false;
+        sanitize();
+      });
+      element.addEventListener("input",event=>{
+        if(isComposing||event.isComposing) return;
+        sanitize();
+      });
+      element.addEventListener("blur",sanitize);
     };
 
     ["nickname","accountHolder"].forEach(id=>onlyKorean(document.getElementById(id)));
