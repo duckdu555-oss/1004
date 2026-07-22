@@ -7,8 +7,11 @@
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     html,body{width:100%;min-height:100%;margin:0;touch-action:manipulation}
     body{min-height:100vh;background:linear-gradient(180deg,#fff,#fbfdff 58%,#f1f6fb);font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#111;overscroll-behavior:none}
+    .snow{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+    .snowflake{position:absolute;top:-12px;border-radius:50%;background:rgba(175,194,211,.72);box-shadow:0 0 7px rgba(190,210,228,.28);animation:snowfall linear infinite}
+    @keyframes snowfall{0%{transform:translate3d(0,-20px,0);opacity:0}12%{opacity:1}100%{transform:translate3d(var(--drift),110vh,0);opacity:.15}}
     button,input{font:inherit;touch-action:manipulation}
-    .page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+    .page{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px}
     .login-wrap{width:100%;max-width:980px}
     .image-area{width:100%;max-width:460px;margin:0 auto 30px;overflow:hidden;border-radius:18px;background:rgba(255,255,255,.72);box-shadow:0 10px 30px rgba(130,150,170,.08)}
     .image-area img{display:block;width:100%;height:auto}
@@ -27,6 +30,10 @@
     .login-form input,.login-form button{width:100%;height:54px;border-radius:999px}
     .login-form input{padding:0 18px;border:1px solid #d8e0e7;background:#fff;outline:none;font-size:16px}
     .login-form input:focus{border-color:#8ca7bd;box-shadow:0 0 0 3px rgba(140,167,189,.12)}
+    .security-row{display:grid;grid-template-columns:150px 1fr;gap:10px}
+    .security-code{height:54px;border:1px solid #d8e0e7;border-radius:999px;background:linear-gradient(135deg,#eef3f7,#fff);display:flex;align-items:center;justify-content:center;gap:9px;padding:0 12px;user-select:none}
+    .security-code-text{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:20px;font-weight:950;letter-spacing:3px;color:#35485c;text-decoration:line-through;text-decoration-color:rgba(80,100,120,.3)}
+    .security-refresh{width:30px!important;height:30px!important;min-width:30px;border:0;border-radius:50%!important;background:#dfe8ef;color:#26394d;padding:0;font-size:17px;line-height:1}
     button{cursor:pointer;font-weight:800}
     .login-button{border:0;background:#111;color:#fff}
     .signup-button{border:1px solid #dfe7ed;background:#eef3f7;color:#111}
@@ -52,12 +59,16 @@
       .banner-card img{width:100%;height:min(69vh,560px);object-fit:contain;background:#fff}
       .login-form{gap:10px}
       .login-form input,.login-form button{height:48px}
+      .security-row{grid-template-columns:128px 1fr;gap:8px}
+      .security-code{height:48px;padding:0 9px}
+      .security-code-text{font-size:17px;letter-spacing:2px}
     }
     @media(max-width:360px){.login-wrap{max-width:320px}.page{padding-left:20px;padding-right:20px}}
 
   </style>
 </head>
 <body>
+<div class="snow" id="snow" aria-hidden="true"></div>
 <main class="page"><section class="login-wrap">
   <div class="image-area"><img src="./image/login-image.png" alt="상단 이미지"></div>
   <div class="login-content">
@@ -73,6 +84,13 @@
   <form class="login-form" id="loginForm" novalidate>
     <input type="text" id="userId" placeholder="아이디" autocomplete="username" required>
     <input type="password" id="password" placeholder="비밀번호" autocomplete="current-password" required>
+    <div class="security-row">
+      <div class="security-code" aria-label="보안코드">
+        <span class="security-code-text" id="securityCodeText"></span>
+        <button type="button" class="security-refresh" id="securityRefresh" aria-label="보안코드 새로고침">↻</button>
+      </div>
+      <input type="text" id="securityCodeInput" placeholder="보안코드 입력" autocomplete="off" autocapitalize="characters" spellcheck="false" required maxlength="5">
+    </div>
     <button type="submit" class="login-button">로그인</button>
     <button type="button" class="signup-button" id="signupButton">회원가입</button>
     <div class="loading" id="loading">로그인 확인 중...</div>
@@ -94,6 +112,38 @@
 const form=document.getElementById('loginForm'),msg=document.getElementById('message'),loading=document.getElementById('loading');
 const signupButton=document.getElementById('signupButton'),progressOverlay=document.getElementById('progressOverlay'),progressBar=document.getElementById('progressBar'),progressPercent=document.getElementById('progressPercent');
 const show=(text,type='error')=>{msg.textContent=text;msg.className=`message show ${type}`};
+
+const snowContainer=document.getElementById('snow');
+const snowflakeCount=window.innerWidth<=520?70:120;
+for(let i=0;i<snowflakeCount;i+=1){
+  const snowflake=document.createElement('span');
+  const size=Math.random()*6+2;
+  snowflake.className='snowflake';
+  snowflake.style.left=Math.random()*100+'vw';
+  snowflake.style.width=size+'px';
+  snowflake.style.height=size+'px';
+  snowflake.style.opacity=Math.random()*.65+.25;
+  snowflake.style.animationDuration=Math.random()*7+6+'s';
+  snowflake.style.animationDelay=Math.random()*-16+'s';
+  snowflake.style.setProperty('--drift',Math.random()*180-90+'px');
+  snowContainer.appendChild(snowflake);
+}
+
+const securityCodeText=document.getElementById('securityCodeText');
+const securityCodeInput=document.getElementById('securityCodeInput');
+const securityRefresh=document.getElementById('securityRefresh');
+let currentSecurityCode='';
+const createSecurityCode=()=>{
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  currentSecurityCode=Array.from({length:5},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+  securityCodeText.textContent=currentSecurityCode;
+  securityCodeInput.value='';
+};
+securityCodeInput.addEventListener('input',()=>{
+  securityCodeInput.value=securityCodeInput.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,5);
+});
+securityRefresh.addEventListener('click',()=>{createSecurityCode();securityCodeInput.focus()});
+createSecurityCode();
 const bannerSection=document.getElementById('bannerSection');
 const bannerGrid=document.getElementById('bannerGrid');
 const bannerCards=[...bannerGrid.querySelectorAll('.banner-card')];
@@ -146,6 +196,9 @@ form.addEventListener('submit',async e=>{
   const password=passwordInput.value;
   if(!userId){show('아이디를 입력해 주세요.');userIdInput.focus();return;}
   if(!password){show('비밀번호를 입력해 주세요.');passwordInput.focus();return;}
+  const enteredSecurityCode=securityCodeInput.value.trim().toUpperCase();
+  if(!enteredSecurityCode){show('보안코드를 입력해 주세요.');securityCodeInput.focus();return;}
+  if(enteredSecurityCode!==currentSecurityCode){show('보안코드가 일치하지 않습니다. 다시 입력해 주세요.');createSecurityCode();securityCodeInput.focus();return;}
   loading.classList.add('show');
   try{
     const {data,error}=await sb.rpc('member_login',{p_user_id:userId,p_password:password});
@@ -159,6 +212,7 @@ form.addEventListener('submit',async e=>{
     if(m.includes('PENDING_APPROVAL')) show('가입 승인 대기 중입니다.');
     else if(m.includes('REJECTED_MEMBER')) show('회원가입이 거절된 계정입니다.');
     else show('아이디 또는 비밀번호가 올바르지 않습니다.');
+    createSecurityCode();
   }finally{loading.classList.remove('show')}
 });
 </script>
