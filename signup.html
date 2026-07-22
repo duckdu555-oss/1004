@@ -201,14 +201,14 @@
         <div class="form-group">
           <label class="field-label" for="nickname">닉네임 <span class="required">*</span></label>
           <div class="field-control">
-            <input type="text" id="nickname" name="nickname" placeholder="닉네임 입력" required maxlength="10" pattern="[가-힣]+">
+            <input type="text" id="nickname" name="nickname" placeholder="닉네임 입력" required maxlength="10">
           </div>
         </div>
 
         <div class="form-group">
           <label class="field-label" for="accountHolder">예금주 <span class="required">*</span></label>
           <div class="field-control">
-            <input type="text" id="accountHolder" name="accountHolder" placeholder="예금주 입력" required maxlength="20" pattern="[가-힣]+">
+            <input type="text" id="accountHolder" name="accountHolder" placeholder="예금주 입력" required maxlength="20">
           </div>
           <p class="help">실명이 아닌 경우 회원가입이 제한될 수 있습니다.</p>
         </div>
@@ -333,41 +333,8 @@
       snowContainer.appendChild(snowflake);
     }
 
-    const onlyNumbers=(element)=>{
-      element.addEventListener("input",()=>{
-        element.value=element.value.replace(/\D/g,"");
-      });
-    };
-
-    ["accountNumber","birthYear","birthMonth","birthDay","phone1","phone2","phone3","exchangePassword","signupCode"]
-      .forEach(id=>onlyNumbers(document.getElementById(id)));
-
-    const onlyKorean=(element)=>{
-      let isComposing=false;
-      const sanitize=()=>{
-        element.value=element.value.replace(/[^가-힣]/g,"");
-      };
-
-      element.addEventListener("compositionstart",()=>{
-        isComposing=true;
-      });
-      element.addEventListener("compositionend",()=>{
-        isComposing=false;
-        sanitize();
-      });
-      element.addEventListener("input",event=>{
-        if(isComposing||event.isComposing) return;
-        sanitize();
-      });
-      element.addEventListener("blur",sanitize);
-    };
-
-    ["nickname","accountHolder"].forEach(id=>onlyKorean(document.getElementById(id)));
-
-    const userId=document.getElementById("userId");
-    userId.addEventListener("input",()=>{
-      userId.value=userId.value.toLowerCase().replace(/[^a-z0-9]/g,"");
-    });
+    // 입력 중에는 문자를 강제로 삭제하지 않습니다.
+    // 형식 검증은 회원가입 버튼을 눌렀을 때 한 번에 진행합니다.
 
     const isMobileDevice=()=>/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
     const uploadInputs=[
@@ -514,6 +481,13 @@
       event.preventDefault();
       if(isPrechecking||isRegistering)return;
       if(!validateRequiredFields())return;
+      const userIdValue=document.getElementById("userId").value.trim();
+      if(!/^[A-Za-z0-9]+$/.test(userIdValue)){
+        alert("아이디는 영문과 숫자만 입력해 주세요.");
+        document.getElementById("userId").focus();
+        return;
+      }
+      document.getElementById("userId").value=userIdValue.toLowerCase();
       const specialCharacterPattern=/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?`~]/;
       if(!specialCharacterPattern.test(password.value)){
         alert("비밀번호에는 특수문자를 최소 1개 포함해 주세요.");
