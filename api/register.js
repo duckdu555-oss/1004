@@ -5,6 +5,16 @@ module.exports = async function handler(req, res) {
   try {
     const b = req.body || {};
     if (!safeEqual(b.signupCode, env('SIGNUP_CODE'))) return json(res, 400, { error: 'INVALID_SIGNUP_CODE' });
+
+    const koreanOnly = /^[가-힣]+$/;
+    const digitsOnly = /^[0-9]+$/;
+    if (!koreanOnly.test(String(b.nickname || '').trim())) return json(res, 400, { error: 'INVALID_NICKNAME_FORMAT' });
+    if (!koreanOnly.test(String(b.accountHolder || '').trim())) return json(res, 400, { error: 'INVALID_ACCOUNT_HOLDER_FORMAT' });
+    if (!digitsOnly.test(String(b.signupCode || ''))) return json(res, 400, { error: 'INVALID_SIGNUP_CODE_FORMAT' });
+    if (!digitsOnly.test(String(b.accountNumber || ''))) return json(res, 400, { error: 'INVALID_ACCOUNT_NUMBER_FORMAT' });
+    if (!digitsOnly.test(String(b.phone || ''))) return json(res, 400, { error: 'INVALID_PHONE_FORMAT' });
+    if (!digitsOnly.test(String(b.exchangePassword || ''))) return json(res, 400, { error: 'INVALID_EXCHANGE_PASSWORD_FORMAT' });
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(b.birthDate || ''))) return json(res, 400, { error: 'INVALID_BIRTH_DATE_FORMAT' });
     const data = await supabase('/rest/v1/rpc/register_member', {
       method: 'POST',
       body: JSON.stringify({

@@ -8,6 +8,8 @@ module.exports = async function handler(req, res) {
     const uid = String(userId || '').trim().toLowerCase();
     const nick = String(nickname || '').trim();
     if (!uid || !nick) return json(res, 400, { error: 'INVALID_INPUT' });
+    if (!/^[0-9]+$/.test(String(signupCode || ''))) return json(res, 400, { error: 'INVALID_SIGNUP_CODE_FORMAT' });
+    if (!/^[가-힣]+$/.test(nick)) return json(res, 400, { error: 'INVALID_NICKNAME_FORMAT' });
 
     const q1 = encodeURIComponent(`eq.${uid}`);
     const q2 = encodeURIComponent(`eq.${nick}`);

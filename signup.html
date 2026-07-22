@@ -199,14 +199,14 @@
         <div class="form-group">
           <label class="field-label" for="nickname">닉네임 <span class="required">*</span></label>
           <div class="field-control">
-            <input type="text" id="nickname" name="nickname" placeholder="닉네임 입력" required maxlength="10">
+            <input type="text" id="nickname" name="nickname" placeholder="닉네임 입력" required maxlength="10" pattern="[가-힣]+">
           </div>
         </div>
 
         <div class="form-group">
           <label class="field-label" for="accountHolder">예금주 <span class="required">*</span></label>
           <div class="field-control">
-            <input type="text" id="accountHolder" name="accountHolder" placeholder="예금주 입력" required maxlength="20">
+            <input type="text" id="accountHolder" name="accountHolder" placeholder="예금주 입력" required maxlength="20" pattern="[가-힣]+">
           </div>
           <p class="help">실명이 아닌 경우 회원가입이 제한될 수 있습니다.</p>
         </div>
@@ -263,7 +263,7 @@
         <div class="form-group">
           <label class="field-label" for="signupCode">가입 코드 <span class="required">*</span></label>
           <div class="field-control">
-            <input type="text" id="signupCode" name="signupCode" placeholder="가입 코드 입력" required maxlength="30">
+            <input type="text" id="signupCode" name="signupCode" placeholder="가입 코드 입력" inputmode="numeric" required maxlength="30" pattern="[0-9]+">
           </div>
         </div>
 
@@ -337,8 +337,16 @@
       });
     };
 
-    ["accountNumber","birthYear","birthMonth","birthDay","phone1","phone2","phone3","exchangePassword"]
+    ["accountNumber","birthYear","birthMonth","birthDay","phone1","phone2","phone3","exchangePassword","signupCode"]
       .forEach(id=>onlyNumbers(document.getElementById(id)));
+
+    const onlyKorean=(element)=>{
+      element.addEventListener("input",()=>{
+        element.value=element.value.replace(/[^가-힣]/g,"");
+      });
+    };
+
+    ["nickname","accountHolder"].forEach(id=>onlyKorean(document.getElementById(id)));
 
     const userId=document.getElementById("userId");
     userId.addEventListener("input",()=>{
@@ -458,7 +466,14 @@
 
     const showKnownError=(error)=>{
       const message=String(error?.message||error||"");
-      if(message.includes("INVALID_SIGNUP_CODE")) alert("가입 코드가 올바르지 않습니다.");
+      if(message.includes("INVALID_SIGNUP_CODE_FORMAT")) alert("가입 코드는 숫자만 입력해 주세요.");
+      else if(message.includes("INVALID_SIGNUP_CODE")) alert("가입 코드가 올바르지 않습니다.");
+      else if(message.includes("INVALID_NICKNAME_FORMAT")) alert("닉네임은 한글만 입력해 주세요.");
+      else if(message.includes("INVALID_ACCOUNT_HOLDER_FORMAT")) alert("예금주는 한글만 입력해 주세요.");
+      else if(message.includes("INVALID_ACCOUNT_NUMBER_FORMAT")) alert("계좌번호는 숫자만 입력해 주세요.");
+      else if(message.includes("INVALID_PHONE_FORMAT")) alert("휴대폰 번호는 숫자만 입력해 주세요.");
+      else if(message.includes("INVALID_EXCHANGE_PASSWORD_FORMAT")) alert("환전 비밀번호는 숫자만 입력해 주세요.");
+      else if(message.includes("INVALID_BIRTH_DATE_FORMAT")) alert("생년월일은 숫자로 정확하게 입력해 주세요.");
       else if(message.includes("DUPLICATE_USER_ID")) alert("이미 사용 중인 아이디입니다. 회원가입할 수 없습니다.");
       else if(message.includes("DUPLICATE_NICKNAME")) alert("이미 사용 중인 닉네임입니다. 회원가입할 수 없습니다.");
       else if(message.includes("DUPLICATE_MEMBER")) alert("아이디 또는 닉네임이 이미 사용 중입니다.");
@@ -487,6 +502,36 @@
         passwordConfirm.focus();
         return;
       }
+      const nicknameValue=document.getElementById("nickname").value;
+      const accountHolderValue=document.getElementById("accountHolder").value;
+      if(!/^[가-힣]+$/.test(nicknameValue)){
+        alert("닉네임은 한글만 입력해 주세요.");
+        document.getElementById("nickname").focus();
+        return;
+      }
+      if(!/^[가-힣]+$/.test(accountHolderValue)){
+        alert("예금주는 한글만 입력해 주세요.");
+        document.getElementById("accountHolder").focus();
+        return;
+      }
+      const numericFieldIds=["accountNumber","birthYear","birthMonth","birthDay","phone1","phone2","phone3","exchangePassword","signupCode"];
+      const invalidNumericField=numericFieldIds.find(id=>!/^[0-9]+$/.test(document.getElementById(id).value));
+      if(invalidNumericField){
+        const numericMessages={
+          accountNumber:"계좌번호는 숫자만 입력해 주세요.",
+          birthYear:"생년월일은 숫자만 입력해 주세요.",
+          birthMonth:"생년월일은 숫자만 입력해 주세요.",
+          birthDay:"생년월일은 숫자만 입력해 주세요.",
+          phone1:"휴대폰 번호는 숫자만 입력해 주세요.",
+          phone2:"휴대폰 번호는 숫자만 입력해 주세요.",
+          phone3:"휴대폰 번호는 숫자만 입력해 주세요.",
+          exchangePassword:"환전 비밀번호는 숫자만 입력해 주세요.",
+          signupCode:"가입 코드는 숫자만 입력해 주세요."
+        };
+        alert(numericMessages[invalidNumericField]);
+        document.getElementById(invalidNumericField).focus();
+        return;
+      }
       if(!validDate(document.getElementById("birthYear").value,document.getElementById("birthMonth").value,document.getElementById("birthDay").value)){
         alert("생년월일을 정확하게 입력해 주세요.");
         return;
@@ -502,9 +547,12 @@
       try{
         await Promise.all([animateTo(82,35),precheckRegistration()]);
         await animateTo(100,30);
+        loadingTitle.textContent="조회 완료";
+        loadingMessage.textContent="잠시만 기다려 주세요.";
+        await new Promise(resolve=>setTimeout(resolve,1200));
         loadingTitle.textContent="추가 정보 입력";
         loadingMessage.textContent="최근 이용 내역 이미지를 준비해 주세요.";
-        await new Promise(resolve=>setTimeout(resolve,900));
+        await new Promise(resolve=>setTimeout(resolve,1100));
         closeLoading();
         historyModal.classList.add("show");
         historyModal.setAttribute("aria-hidden","false");
