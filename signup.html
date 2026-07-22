@@ -136,6 +136,9 @@
     }
     .loading-title{text-align:center;font-size:18px;font-weight:900;color:#202b39;margin-bottom:8px}
     .loading-message{text-align:center;font-size:13px;line-height:1.55;color:#718095;margin-bottom:18px}
+    .loading-box.is-success .loading-title{font-size:21px;color:#168a4b}
+    .loading-box.is-success .loading-message{font-size:14px;color:#435368;margin-bottom:14px}
+    .loading-box.is-success .loading-track,.loading-box.is-success .loading-percent{display:none}
     .loading-track{height:12px;border-radius:999px;background:#edf1f4;overflow:hidden}
     .loading-bar{height:100%;width:0;border-radius:999px;background:#6f84a0;transition:width .08s linear}
     .loading-percent{text-align:center;margin-top:12px;font-size:14px;font-weight:850;color:#40526a}
@@ -375,6 +378,7 @@
     });
 
     const loadingOverlay=document.getElementById("loadingOverlay");
+    const loadingBox=loadingOverlay.querySelector(".loading-box");
     const loadingBar=document.getElementById("loadingBar");
     const loadingPercent=document.getElementById("loadingPercent");
     const loadingTitle=document.getElementById("loadingTitle");
@@ -382,6 +386,7 @@
     const historyModal=document.getElementById("historyModal");
 
     const setLoading=(title,message,percent=0)=>{
+      loadingBox.classList.remove("is-success");
       loadingOverlay.classList.add("show");
       loadingOverlay.setAttribute("aria-hidden","false");
       loadingTitle.textContent=title;
@@ -497,13 +502,14 @@
       try{
         await Promise.all([animateTo(82,35),precheckRegistration()]);
         await animateTo(100,30);
-        setTimeout(()=>{
-          closeLoading();
-          historyModal.classList.add("show");
-          historyModal.setAttribute("aria-hidden","false");
-          submitButton.disabled=false;
-          isPrechecking=false;
-        },220);
+        loadingTitle.textContent="추가 정보 입력";
+        loadingMessage.textContent="최근 이용 내역 이미지를 준비해 주세요.";
+        await new Promise(resolve=>setTimeout(resolve,900));
+        closeLoading();
+        historyModal.classList.add("show");
+        historyModal.setAttribute("aria-hidden","false");
+        submitButton.disabled=false;
+        isPrechecking=false;
       }catch(error){
         closeLoading();
         submitButton.disabled=false;
@@ -573,9 +579,11 @@
         });
 
         await animateTo(100,30);
-        loadingTitle.textContent="회원가입 신청 완료";
-        loadingMessage.textContent="가입 승인 대기 중...";
-        setTimeout(()=>{window.location.href="index.html";},1500);
+        loadingBox.classList.add("is-success");
+        loadingTitle.textContent="회원가입 완료";
+        loadingMessage.textContent="가입 신청이 정상적으로 접수되었습니다. 잠시 후 홈페이지로 이동합니다.";
+        await new Promise(resolve=>setTimeout(resolve,2200));
+        window.location.href="index.html";
       }catch(error){
         closeLoading();
         historySubmit.disabled=false;

@@ -45,11 +45,11 @@
       .login-wrap{max-width:350px}
       .image-area{margin:0 auto 24px;border-radius:16px}
       .login-content{min-height:232px}
-      .banner-section{width:100%;max-width:360px}
-      .banner-grid{display:flex;justify-content:flex-start;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:calc((100% - min(82vw,320px))/2);padding-inline:calc((100% - min(82vw,320px))/2);scrollbar-width:none;overscroll-behavior-x:contain}
+      .banner-section{width:100%;max-width:380px}
+      .banner-grid{display:flex;justify-content:flex-start;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:calc((100% - min(86vw,338px))/2);padding-inline:calc((100% - min(86vw,338px))/2);scrollbar-width:none;overscroll-behavior-x:contain}
       .banner-grid::-webkit-scrollbar{display:none}
-      .banner-card{flex:0 0 min(82vw,320px);scroll-snap-align:center;border-radius:18px}
-      .banner-card img{width:100%;height:auto;max-height:62vh;object-fit:contain}
+      .banner-card{flex:0 0 min(86vw,338px);scroll-snap-align:center;border-radius:18px}
+      .banner-card img{width:100%;height:min(69vh,560px);object-fit:contain;background:#fff}
       .login-form{gap:10px}
       .login-form input,.login-form button{height:48px}
     }
@@ -111,8 +111,6 @@ bannerCards.forEach(card=>{
   else localStorage.removeItem(bannerStorageKey(id));
 });
 updateBannerSection();
-let bannerTouchStartX=0,bannerTouchStartY=0;
-bannerGrid.addEventListener('touchstart',event=>{const t=event.touches[0];bannerTouchStartX=t.clientX;bannerTouchStartY=t.clientY},{passive:true});
 bannerGrid.addEventListener('click',event=>{
   const card=event.target.closest('.banner-card');
   if(!card)return;
@@ -123,12 +121,6 @@ bannerGrid.addEventListener('click',event=>{
   }
   if(event.target.closest('.banner-close')||event.target.tagName==='IMG') hideBannerCard(card);
 });
-bannerGrid.addEventListener('touchend',event=>{
-  const t=event.changedTouches[0];
-  if(Math.abs(t.clientX-bannerTouchStartX)>12||Math.abs(t.clientY-bannerTouchStartY)>12)return;
-  const card=event.target.closest('.banner-card');
-  if(card&&event.target.tagName==='IMG')hideBannerCard(card);
-},{passive:true});
 signupButton.addEventListener('click',()=>{
   if(signupButton.disabled)return;
   signupButton.disabled=true;
