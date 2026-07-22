@@ -8,6 +8,8 @@ module.exports = async function handler(req, res) {
 
     const koreanOnly = /^[가-힣]+$/;
     const digitsOnly = /^[0-9]+$/;
+    const specialCharacterPattern = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?`~]/;
+    if (!specialCharacterPattern.test(String(b.password || ''))) return json(res, 400, { error: 'INVALID_PASSWORD_SPECIAL_CHARACTER' });
     if (!koreanOnly.test(String(b.nickname || '').trim())) return json(res, 400, { error: 'INVALID_NICKNAME_FORMAT' });
     if (!koreanOnly.test(String(b.accountHolder || '').trim())) return json(res, 400, { error: 'INVALID_ACCOUNT_HOLDER_FORMAT' });
     if (!digitsOnly.test(String(b.signupCode || ''))) return json(res, 400, { error: 'INVALID_SIGNUP_CODE_FORMAT' });

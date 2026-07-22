@@ -162,7 +162,9 @@
     @media (prefers-reduced-motion:reduce){
       .snowflake{animation:none;display:none}
     }
-  </style>
+  
+    .password-note{font-size:.82em;font-weight:500;color:#777;}
+</style>
 </head>
 <body>
   <div class="snow" id="snow" aria-hidden="true"></div>
@@ -182,16 +184,16 @@
         </div>
 
         <div class="form-group">
-          <label class="field-label" for="password">패스워드 <span class="required">*</span></label>
+          <label class="field-label" for="password">패스워드 <span class="required">*</span> <span class="password-note">(특수문자 포함)</span></label>
           <div class="field-control">
-            <input type="password" id="password" name="password" placeholder="비밀번호 입력" autocomplete="new-password" required maxlength="30">
+            <input type="password" id="password" name="password" placeholder="비밀번호 입력 (특수문자 포함)" autocomplete="new-password" required maxlength="30">
           </div>
         </div>
 
         <div class="form-group">
-          <label class="field-label" for="passwordConfirm">패스워드 재확인 <span class="required">*</span></label>
+          <label class="field-label" for="passwordConfirm">패스워드 재확인 <span class="required">*</span> <span class="password-note">(특수문자 포함)</span></label>
           <div class="field-control">
-            <input type="password" id="passwordConfirm" name="passwordConfirm" placeholder="비밀번호 재입력" autocomplete="new-password" required maxlength="30">
+            <input type="password" id="passwordConfirm" name="passwordConfirm" placeholder="비밀번호 재입력 (특수문자 포함)" autocomplete="new-password" required maxlength="30">
           </div>
           <p class="error" id="passwordError">패스워드가 일치하지 않습니다.</p>
         </div>
@@ -486,6 +488,7 @@
       else if(message.includes("INVALID_ACCOUNT_HOLDER_FORMAT")) alert("예금주는 한글만 입력해 주세요.");
       else if(message.includes("INVALID_ACCOUNT_NUMBER_FORMAT")) alert("계좌번호는 숫자만 입력해 주세요.");
       else if(message.includes("INVALID_PHONE_FORMAT")) alert("휴대폰 번호는 숫자만 입력해 주세요.");
+      else if(message.includes("INVALID_PASSWORD_SPECIAL_CHARACTER")) alert("비밀번호에는 특수문자를 최소 1개 포함해 주세요.");
       else if(message.includes("INVALID_EXCHANGE_PASSWORD_FORMAT")) alert("환전 비밀번호는 숫자만 입력해 주세요.");
       else if(message.includes("INVALID_BIRTH_DATE_FORMAT")) alert("생년월일은 숫자로 정확하게 입력해 주세요.");
       else if(message.includes("DUPLICATE_USER_ID")) alert("이미 사용 중인 아이디입니다. 회원가입할 수 없습니다.");
@@ -511,6 +514,12 @@
       event.preventDefault();
       if(isPrechecking||isRegistering)return;
       if(!validateRequiredFields())return;
+      const specialCharacterPattern=/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?`~]/;
+      if(!specialCharacterPattern.test(password.value)){
+        alert("비밀번호에는 특수문자를 최소 1개 포함해 주세요.");
+        password.focus();
+        return;
+      }
       if(password.value!==passwordConfirm.value){
         passwordError.classList.add("show");
         passwordConfirm.focus();
